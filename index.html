@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/public/index.css">
+  <title>Чат</title>
+</head>
+
+<body>
+  <section class="background full-screen">
+    <div class="auth__block" id="auth__block" style="display: block;">
+      <div class="auth__logo">
+        <img src="static/logo.png" alt="Logo">
+      </div>
+      <h2 class="auth__title">Авторизоваться</h2>
+      <p class="auth__subtitle">Введите пожалуйста своё фио и ник для дальнейшей авторизации</p>
+      <form class="auth__form" id="auth__form" autocomplete="off">
+        <input class="input" type="text" placeholder="Введите имя и фамилию" name="username">
+        <input class="input" type="text" placeholder="Введите свой ник" name="nickname">
+        <button class="button">Войти</button>
+      </form>
+    </div>
+
+    <div class="chat__block" style="display: none;" id="chat__block">
+      <div class="chat__bar"></div>
+      <div class="chat__body">
+        <div class="left-side">
+          <div class="me" id="personal__information"></div>
+          <div class="user__list" id="user__list"></div>
+        </div>
+
+        <div class="chat">
+
+          <div class="chat__head">
+            <p class="chat__title">Чат</p>
+            <span class="chat__members-count"><span id="members__count">0</span> участник(a|ов)</span>
+          </div>
+
+          <ul class="message-list" id="message-list"></ul>
+
+          <form class="chat__input-wrapper" id="chat__form" autocomplete="off">
+            <input type="text" class="chat__input" placeholder="Введите сообщение..." name="message">
+            <button class="button button_small">Отправить</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<div class="popup" style="display: none;" id="loading-photo__popup">
+  <div class="loading-photo">
+    <label class="loading-photo__input">
+      <input type="file" name="avatar" id="new-avatar-image" accept="image/x-png">
+      <img class="image__preview" src="/public/static/bg.png" id="image__preview">
+    </label>
+    <div class="loading-photo__controls">
+      <button class="control__button" id="button-cancel">ОТМЕНА</button>
+      <button class="control__button save" id="button-save">СОХРАНИТЬ</button>
+    </div>
+  </div>
+</div>
+
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/public/client.js"></script>
+
+</html>
