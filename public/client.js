@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const socket = io.connect();
   let user = {};
-  let hasAvatar = false;
 
   function createUserLayout(user, message) {
     const wrapper = document.createElement('div');

@@ -67,15 +67,19 @@ io.on('connection', socket => {
 
   socket.on('disconnect', () => {
     connections.splice(connections.indexOf(socket), 1);
-    userList.splice(userList.indexOf(users[socket.id]), 1);
-    delete users[socket.id];
+    const userIndex = userList.indexOf(users[socket.id]);
+    if (userIndex !== -1) {
+      userList.splice(userList.indexOf(users[socket.id]), 1);
+      delete users[socket.id];
 
-    const payload = {
-      connections: connections.length,
-      users: userList,
-    };
+      const payload = {
+        connections: connections.length,
+        users: userList,
+      };
+  
+      io.emit('remove-user', payload);
+    }
 
-    io.emit('remove-user', payload);
   });
 
   socket.on('update-avatar', () => {
