@@ -7,19 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const messageList = document.getElementById('message-list');
   const membersCount = document.getElementById('members__count');
   const loadingPhotoPopup = document.getElementById('loading-photo__popup');
-  const personalInformationLayout = document.getElementById(
-    'personal__information',
-  );
+  const personalInformationLayout = document.getElementById('personal__info');
   const cancelButton = document.getElementById('button-cancel');
   const saveButton = document.getElementById('button-save');
   const newAvatarImageInput = document.getElementById('new-avatar-image');
   const imagePreview = document.getElementById('image__preview');
+  const dropArea = document.getElementById('drop-area');
 
   const socket = io.connect();
   let user = {};
+  let droppedImage = null;
 
   function createUserLayout(user, message) {
-    console.log('TCL: createUserLayout -> user', user)
     const wrapper = document.createElement('div');
     const content = message
       ? `<span class="user__message">${message}</span>`
@@ -61,6 +60,33 @@ document.addEventListener('DOMContentLoaded', () => {
     where.appendChild(messageLayout);
   }
 
+  function handleDrop(e) {
+    const [ avatar ] = e.dataTransfer.files;
+    
+    if (avatar.type !== 'image/png') {
+      return alert('Файл должен быть .png');
+    }
+
+    droppedImage = avatar;
+
+    showImagePreview(avatar)
+  }
+
+  function showImagePreview(image) {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      imagePreview.src = e.target.result;
+    };
+
+    reader.readAsDataURL(image);
+  }
+
+  function preventDefaults (e) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
   authForm.addEventListener('submit', e => {
     e.preventDefault();
     const { username, nickname } = authForm;
@@ -95,40 +121,44 @@ document.addEventListener('DOMContentLoaded', () => {
     loadingPhotoPopup.style.display = 'none';
   });
 
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, preventDefaults)
+  })
+
+  dropArea.addEventListener('drop', handleDrop)
+
   newAvatarImageInput.addEventListener('change', function() {
-    if (!this.files[0]) {
+    const [ image ] = this.files;
+    
+    if (!image) {
       return;
     }
 
-    if (this.files[0].size > 512000) {
+    if (image.size > 512000) {
       this.value = '';
       return alert('Размер файла слишком большой!');
     }
 
-    if (this.files[0].type !== 'image/png') {
+    if (image.type !== 'image/png') {
       this.value = '';
       return alert('Файл должен быть .png');
     }
 
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-      imagePreview.src = e.target.result;
-    };
-
-    reader.readAsDataURL(this.files[0]);
+    showImagePreview(image)
   });
 
   saveButton.addEventListener('click', () => {
     const formData = new FormData();
-    const avatarImage = newAvatarImageInput.files[0];
-
-    if (!avatarImage) {
-      return alert('Выберите фотографию!')
+    const [ avatarImage ] = newAvatarImageInput.files;
+    const avatar = avatarImage || droppedImage;
+    
+    if (!avatar) {
+      return alert('Выберите фотографию!');
     }
 
-    formData.append('avatar', avatarImage);
+    formData.append('avatar', avatar);
     formData.append('id', user.id);
+    droppedImage = null;
 
     fetch('/upload-new-avatar', { method: 'POST', body: formData }).then(() => {
       socket.emit('update-avatar');
