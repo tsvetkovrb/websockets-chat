@@ -45,6 +45,7 @@ io.on('connection', socket => {
       id: socket.id,
       image: '/public/static/avatars/default.png',
     };
+
     users[socket.id] = updatedUser;
 
     userList.push(updatedUser);
@@ -66,8 +67,10 @@ io.on('connection', socket => {
   });
 
   socket.on('disconnect', () => {
-    connections.splice(connections.indexOf(socket), 1);
     const userIndex = userList.indexOf(users[socket.id]);
+
+    connections.splice(connections.indexOf(socket), 1);
+
     if (userIndex !== -1) {
       userList.splice(userList.indexOf(users[socket.id]), 1);
       delete users[socket.id];
@@ -76,17 +79,13 @@ io.on('connection', socket => {
         connections: connections.length,
         users: userList,
       };
-  
+
       io.emit('remove-user', payload);
     }
-
   });
 
   socket.on('update-avatar', () => {
-    io.emit('new-avatar', {
-      ...users[socket.id],
-      hasImage: true,
-    });
+    io.emit('new-avatar', users[socket.id]);
   });
 });
 
